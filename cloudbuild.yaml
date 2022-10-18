@@ -1,0 +1,31 @@
+steps:
+  # Installing dependencies
+  - name: node
+    entrypoint: npm
+    args: ['install']
+
+  # Build app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'southamerica-east1-docker.pkg.dev/$PROJECT_ID/nodejs-examples/hello-cloud-run:$COMMIT_SHA', '.']
+    id: BUILD
+
+  # Run unit tests
+  - name: southamerica-east1-docker.pkg.dev/$PROJECT_ID/nodejs-examples/hello-cloud-run:$COMMIT_SHA
+    entrypoint: npm
+    args: ['test']
+    id: TEST
+
+  # Storage of the image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'southamerica-east1-docker.pkg.dev/$PROJECT_ID/nodejs-examples/hello-cloud-run:$COMMIT_SHA']
+    id: STORAGE
+
+  # Deploy
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'deploy', 'hello-cloud-run',
+          '--image', 'southamerica-east1-docker.pkg.dev/$PROJECT_ID/nodejs-examples/hello-cloud-run:$COMMIT_SHA',
+          '--region', 'southamerica-east1',
+          '--platform', 'managed',
+          '--allow-unauthenticated']
+    id: DEPLOY
+
