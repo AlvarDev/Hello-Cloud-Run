@@ -25,7 +25,16 @@ steps:
     args: ['run', 'deploy', 'hello-cloud-run',
           '--image', 'southamerica-east1-docker.pkg.dev/$PROJECT_ID/nodejs-examples/hello-cloud-run:$COMMIT_SHA',
           '--region', 'southamerica-east1',
+          '--no-traffic',
           '--platform', 'managed',
           '--allow-unauthenticated']
     id: DEPLOY
+  
+  # Canary release
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'services', 'update-traffic', 'hello-cloud-run', 
+          '--region', 'southamerica-east1',
+          '--to-revisions=LATEST=50']
+    id: CANARY
+
 
