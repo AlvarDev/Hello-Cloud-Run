@@ -16,5 +16,13 @@ steps:
           '--image', 'southamerica-east1-docker.pkg.dev/$PROJECT_ID/my-repo/hello:$COMMIT_SHA',
           '--region', 'southamerica-east1',
           '--platform', 'managed',
+          '--no-traffic',
           '--allow-unauthenticated']
     id: DEPLOY
+
+  # Canary
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'services', 'update-traffic', 'hello-site',
+          '--region', 'southamerica-east1',
+          '--to-revisions=LATEST=50']
+    id: CANARY
